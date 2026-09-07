@@ -1,0 +1,23 @@
+---
+layout: default
+---
+
+<section class="hero">
+  <h1>{{ site.title }}</h1>
+  <p>{{ site.description }}</p>
+</section>
+
+{% assign posts_by_year = site.posts | group_by_exp: "post", "post.date | date: '%Y'" %}
+{% for year in posts_by_year %}
+  <section class="year-group">
+    <h2 class="year-label">{{ year.name }}</h2>
+    <ul class="post-list">
+      {% for post in year.items %}
+        <li>
+          <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%m-%d" }}</time>
+        </li>
+      {% endfor %}
+    </ul>
+  </section>
+{% endfor %}

@@ -1,13 +1,22 @@
-title: qingchuan-x 的博客
+title: qingchuan-x
 description: 记录学习与生活
 lang: zh-CN
-theme: minima
+url: https://qingchuan-x.github.io
 
-author:
-  name: qingchuan-x
+markdown: kramdown
+kramdown:
+  input: GFM
 
-minima:
-  date_format: "%Y-%m-%d"
+permalink: /:year/:month/:day/:title/
 
-header_pages:
-  - about.md
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: post
+  - scope:
+      path: ""
+      type: "pages"
+    values:
+      layout: page
