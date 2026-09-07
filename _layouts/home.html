@@ -7,14 +7,34 @@ layout: default
   <p>{{ site.description }}</p>
 </section>
 
+{% assign all_tags = site.posts | map: "tags" | join: "," | split: "," | uniq | sort %}
+
+{% if all_tags.size > 0 %}
+  <div class="tag-filter" id="tag-filter" role="group" aria-label="按标签筛选">
+    <button type="button" class="chip active" data-tag="" aria-pressed="true">全部</button>
+    {% for tag in all_tags %}
+      <button type="button" class="chip" data-tag="{{ tag | escape }}" aria-pressed="false">{{ tag }}</button>
+    {% endfor %}
+  </div>
+{% endif %}
+
 {% assign posts_by_year = site.posts | group_by_exp: "post", "post.date | date: '%Y'" %}
 {% for year in posts_by_year %}
   <section class="year-group">
     <h2 class="year-label">{{ year.name }}</h2>
     <ul class="post-list">
       {% for post in year.items %}
-        <li>
-          <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+        <li data-tags="{{ post.tags | join: ',' }}">
+          <div>
+            <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+            {% if post.tags.size > 0 %}
+              <div class="row-tags">
+                {% for t in post.tags %}
+                  <span class="mini-tag">{{ t }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
           <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%m-%d" }}</time>
         </li>
       {% endfor %}
