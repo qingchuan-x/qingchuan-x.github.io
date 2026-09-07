@@ -21,7 +21,7 @@ layout: default
       {% if page.tags.size > 0 %}
         <span class="dot">·</span>
         {% for tag in page.tags %}
-          <a class="tag" href="{{ '/tags/#' | append: (tag | url_encode) | relative_url }}">{{ tag }}</a>
+          <a class="tag" href="{{ '/tags/' | relative_url }}#{{ tag | url_encode }}">{{ tag }}</a>
         {% endfor %}
       {% endif %}
     </div>
