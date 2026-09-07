@@ -2,17 +2,25 @@
 layout: default
 ---
 
+{% assign mins = content | strip_html | size | divided_by: 400 %}
+{% if mins < 1 %}{% assign mins = 1 %}{% endif %}
+
 <article class="post">
   <header class="post-header">
     <h1>{{ page.title }}</h1>
     <div class="post-meta">
       <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y-%m-%d" }}</time>
       <span class="dot">·</span>
-      <span>{% assign mins = content | strip_html | size | divided_by: 400 %}{% if mins < 1 %}{% assign mins = 1 %}{% endif %}约 {{ mins }} 分钟</span>
-      {% assign all_tags = page.tags | default: page.categories %}
-      {% if all_tags.size > 0 %}
+      <span>约 {{ mins }} 分钟</span>
+      {% if page.categories.size > 0 %}
         <span class="dot">·</span>
-        {% for tag in all_tags %}
+        {% for cat in page.categories %}
+          <span class="category">{{ cat }}</span>
+        {% endfor %}
+      {% endif %}
+      {% if page.tags.size > 0 %}
+        <span class="dot">·</span>
+        {% for tag in page.tags %}
           <a class="tag" href="{{ '/tags/#' | append: (tag | url_encode) | relative_url }}">{{ tag }}</a>
         {% endfor %}
       {% endif %}
