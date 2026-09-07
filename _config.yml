@@ -1,0 +1,13 @@
+title: qingchuan-x 的博客
+description: 记录学习与生活
+lang: zh-CN
+theme: minima
+
+author:
+  name: qingchuan-x
+
+minima:
+  date_format: "%Y-%m-%d"
+
+header_pages:
+  - about.md
