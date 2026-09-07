@@ -101,68 +101,82 @@
         updateProgress();
       }
 
-      var hero = document.querySelector('[data-line-hero]');
+      var hero = document.getElementById('hero');
       if (hero && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-        var canvas = hero.querySelector('canvas');
+        var canvas = document.getElementById('waves');
         var ctx = canvas.getContext('2d');
         var finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
-        var w = 0, h = 0, t = 0, raf = 0, running = false, inView = true;
-        var px = -1e4, py = -1e4, tx = px, ty = py, strength = 0, tStrength = 0;
-        var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a78bfa';
-        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        var width = 0, height = 0, time = 0, raf = 0, running = false, inView = true;
+        var pointerX = -1000, pointerY = -1000, targetX = -1000, targetY = -1000;
+        var strength = 0, targetStrength = 0, last = 0;
+        var accentColor = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#a78bfa';
         var draw = function () {
-          ctx.clearRect(0, 0, w, h);
-          ctx.strokeStyle = accent;
-          ctx.lineWidth = 0.8;
-          var count = w < 600 ? 22 : 34;
-          for (var i = 0; i < count; i++) {
-            var k = count > 1 ? i / (count - 1) : 0;
-            ctx.globalAlpha = 0.1 + 0.3 * Math.sin(k * Math.PI);
+          ctx.clearRect(0, 0, width, height);
+          ctx.strokeStyle = accentColor;
+          ctx.lineWidth = 0.7;
+          var rowsCount = width < 600 ? 25 : 40;
+          for (var row = 0; row < rowsCount; row++) {
+            var p = row / (rowsCount - 1);
+            ctx.globalAlpha = 0.08 + 0.25 * Math.sin(p * Math.PI);
             ctx.beginPath();
-            for (var x = -20; x <= w + 20; x += 8) {
-              var u = Math.max(0, Math.min(1, x / w));
-              var bell = Math.sin(u * Math.PI);
-              var baseY = h * (0.22 + k * 0.58);
-              var wave = Math.sin(u * 6 + i * 3 + t) * h * 0.09 + Math.cos(u * 9 - i * 2 - t * 0.7) * h * 0.035;
-              var y = baseY + wave * bell;
-              if (strength > 0.01) {
-                var dx = x - px, dy = y - py;
-                var infl = Math.exp(-(dx * dx + dy * dy) / 31250);
-                y += Math.tanh(dy / 45) * 48 * infl * strength;
-              }
-              if (x <= -20) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+            for (var x = -20; x <= width + 20; x += 8) {
+              var nx = x / width;
+              var edgeFade = Math.sin(Math.max(0, Math.min(1, nx)) * Math.PI);
+              var base = height * (0.22 + p * 0.58);
+              var wave = Math.sin(nx * 6 + row * 3 + time) * height * 0.09 + Math.cos(nx * 9 - row * 2 - time * 0.7) * height * 0.035;
+              var y = base + wave * edgeFade;
+              var dx = x - pointerX, dy = y - pointerY;
+              var influence = Math.exp(-(dx * dx + dy * dy) / 31250);
+              y += Math.tanh(dy / 45) * 48 * influence * strength;
+              if (x === -20) ctx.moveTo(x, y); else ctx.lineTo(x, y);
             }
             ctx.stroke();
           }
           ctx.globalAlpha = 1;
         };
         var resize = function () {
-          var rect = hero.getBoundingClientRect();
-          w = rect.width; h = rect.height;
-          canvas.width = Math.round(w * dpr);
-          canvas.height = Math.round(h * dpr);
+          var box = hero.getBoundingClientRect();
+          var dpr = Math.min(window.devicePixelRatio || 1, 2);
+          width = box.width;
+          height = box.height;
+          canvas.width = Math.round(width * dpr);
+          canvas.height = Math.round(height * dpr);
           ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
           draw();
         };
-        var loop = function () {
-          t += 0.016;
-          var ease = 0.08;
-          px += (tx - px) * ease;
-          py += (ty - py) * ease;
-          strength += (tStrength - strength) * 0.06;
+        var animate = function (now) {
+          var dt = Math.min((now - (last || now)) / 1000, 0.05);
+          last = now;
+          time += dt * 0.18;
+          var easing = 1 - Math.exp(-dt * 7);
+          pointerX += (targetX - pointerX) * easing;
+          pointerY += (targetY - pointerY) * easing;
+          strength += (targetStrength - strength) * easing;
           draw();
-          raf = requestAnimationFrame(loop);
+          raf = requestAnimationFrame(animate);
         };
-        var start = function () {
-          if (running || !inView || document.hidden) return;
-          running = true;
-          raf = requestAnimationFrame(loop);
+        var startAnim = function () {
+          if (!running && inView && !document.hidden) {
+            running = true;
+            last = 0;
+            raf = requestAnimationFrame(animate);
+          }
         };
-        var stop = function () {
+        var stopAnim = function () {
           running = false;
           cancelAnimationFrame(raf);
-          draw();
         };
+        hero.addEventListener('pointermove', function (event) {
+          if (!finePointer.matches) return;
+          var box = hero.getBoundingClientRect();
+          targetX = event.clientX - box.left;
+          targetY = event.clientY - box.top;
+          if (targetStrength === 0) { pointerX = targetX; pointerY = targetY; }
+          targetStrength = 1;
+        });
+        hero.addEventListener('pointerleave', function () {
+          targetStrength = 0;
+        });
         if ('ResizeObserver' in window) {
           new ResizeObserver(resize).observe(hero);
         } else {
@@ -171,25 +185,14 @@
         if ('IntersectionObserver' in window) {
           new IntersectionObserver(function (entries) {
             inView = entries[0].isIntersecting;
-            if (inView) start(); else stop();
+            if (inView) startAnim(); else stopAnim();
           }).observe(hero);
         }
         document.addEventListener('visibilitychange', function () {
-          if (document.hidden) stop(); else start();
-        });
-        hero.addEventListener('pointermove', function (e) {
-          if (!finePointer.matches) return;
-          var rect = hero.getBoundingClientRect();
-          tx = e.clientX - rect.left;
-          ty = e.clientY - rect.top;
-          if (px < -9000) { px = tx; py = ty; }
-          tStrength = 1;
-        });
-        hero.addEventListener('pointerleave', function () {
-          tStrength = 0;
+          if (document.hidden) stopAnim(); else startAnim();
         });
         resize();
-        start();
+        startAnim();
       }
 
       var filterBar = document.getElementById('tag-filter');
