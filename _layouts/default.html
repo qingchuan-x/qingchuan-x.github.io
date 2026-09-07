@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23181655'/%3E%3Ctext x='16' y='22' font-family='Inter,sans-serif' font-size='17' font-weight='600' fill='%23a78bfa' text-anchor='middle'%3Eq%3C/text%3E%3C/svg%3E">
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
+  <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
   <header class="site-header">
@@ -37,6 +38,38 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+      var header = document.querySelector('.site-header');
+      if (header) {
+        var onScroll = function () {
+          header.classList.toggle('scrolled', window.scrollY > 8);
+        };
+        onScroll();
+        window.addEventListener('scroll', onScroll, { passive: true });
+      }
+
+      var reveals = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+      document.querySelectorAll('.year-group, .tag-group').forEach(function (group) {
+        if (!group.classList.contains('reveal')) group.classList.add('reveal');
+        group.querySelectorAll('.post-list li').forEach(function (li, i) {
+          li.classList.add('reveal');
+          li.style.transitionDelay = Math.min(i * 40, 280) + 'ms';
+        });
+      });
+      reveals = Array.prototype.slice.call(document.querySelectorAll('.reveal'));
+      if ('IntersectionObserver' in window && reveals.length) {
+        var io = new IntersectionObserver(function (entries) {
+          entries.forEach(function (entry) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible');
+              io.unobserve(entry.target);
+            }
+          });
+        }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
+        reveals.forEach(function (el) { io.observe(el); });
+      } else {
+        reveals.forEach(function (el) { el.classList.add('visible'); });
+      }
+
       var filterBar = document.getElementById('tag-filter');
       if (filterBar) {
         var chips = Array.prototype.slice.call(filterBar.querySelectorAll('.chip'));

@@ -55,10 +55,16 @@ a:hover {
   position: sticky;
   top: 0;
   z-index: 10;
-  background: rgba(9, 9, 11, 0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(9, 9, 11, 0.72);
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
   border-bottom: 1px solid var(--border);
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.site-header.scrolled {
+  background: rgba(9, 9, 11, 0.9);
+  border-bottom-color: var(--border-strong);
 }
 
 .header-inner {
@@ -88,10 +94,28 @@ a:hover {
   color: var(--text-muted);
   font-size: 0.9rem;
   font-weight: 500;
+  position: relative;
+}
+
+.site-nav a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 1px;
+  background: var(--accent);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .site-nav a:hover {
   color: var(--text);
+}
+
+.site-nav a:hover::after {
+  transform: scaleX(1);
 }
 
 main {
@@ -154,11 +178,14 @@ main {
   align-items: baseline;
   justify-content: space-between;
   gap: 1rem;
-  padding: 0.7rem 0;
+  padding: 0.7rem 0.9rem;
+  margin: 0 -0.9rem;
+  border-radius: 10px;
+  transition: background-color 0.18s ease;
 }
 
-.post-list li + li {
-  border-top: 1px solid var(--border);
+.post-list li:hover {
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .post-link {
@@ -305,6 +332,31 @@ a.tag:hover {
   font-variant-numeric: tabular-nums;
 }
 
+.js .reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.55s cubic-bezier(0.16, 1, 0.3, 1), transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.js .reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .js .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 .post-content {
   font-size: 1.02rem;
 }
@@ -378,7 +430,9 @@ a.tag:hover {
   font-family: Inter, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
   font-size: 0.75rem;
   color: var(--text-muted);
-  background: var(--bg-elevated);
+  background: rgba(16, 16, 19, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--border-strong);
   border-radius: 6px;
   padding: 0.2rem 0.65rem;
