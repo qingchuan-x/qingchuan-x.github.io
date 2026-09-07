@@ -117,7 +117,7 @@
 
       var runtime = document.getElementById('runtime');
       if (runtime) {
-        var since = new Date('{{ site.since | default: "2026-09-07" }}T00:00:00+08:00');
+        var since = new Date('{{ site.since | default: "2026-09-07T00:00:00+08:00" }}');
         var tick = function () {
           var total = Math.floor(Math.max(0, Date.now() - since.getTime()) / 1000);
           var d = Math.floor(total / 86400);
