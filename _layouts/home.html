@@ -2,9 +2,13 @@
 layout: default
 ---
 
-<section class="hero">
-  <h1 class="reveal">{{ site.title }}</h1>
-  <p class="reveal" style="transition-delay: 80ms">{{ site.description }}</p>
+<section class="hero" data-line-hero>
+  <canvas class="line-canvas" aria-hidden="true"></canvas>
+  <div class="hero-mark">
+    <h1 class="reveal">{{ site.title }}</h1>
+    <p class="reveal" style="transition-delay: 80ms">{{ site.description }}</p>
+    <svg class="hero-underline" viewBox="0 0 240 22" aria-hidden="true"><path d="M8 15 Q100 2 232 10 M210 8 Q226 10 232 6" pathLength="1"/></svg>
+  </div>
 </section>
 
 {% assign all_tags = site.posts | map: "tags" | join: "," | split: "," | uniq | sort %}
@@ -25,17 +29,14 @@ layout: default
     <ul class="post-list">
       {% for post in year.items %}
         <li data-tags="{{ post.tags | join: ',' }}">
-          <div>
-            <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
-            {% if post.tags.size > 0 %}
-              <div class="row-tags">
-                {% for t in post.tags %}
-                  <span class="mini-tag">{{ t }}</span>
-                {% endfor %}
-              </div>
-            {% endif %}
-          </div>
-          <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%m-%d" }}</time>
+          <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y-%m-%d" }}</time>
+          <a class="post-link" href="{{ post.url | relative_url }}">{{ post.title }}</a>
+          <span class="row-side">
+            {% for t in post.tags %}
+              <span class="mini-tag">{{ t }}</span>
+            {% endfor %}
+            <span class="row-arrow" aria-hidden="true">↗</span>
+          </span>
         </li>
       {% endfor %}
     </ul>
