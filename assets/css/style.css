@@ -350,16 +350,6 @@ main {
   animation: arrive 0.7s ease 2.65s forwards;
 }
 
-.hint {
-  margin-top: 2.5rem;
-  color: var(--text-faint);
-  font-family: var(--mono);
-  font-size: 13px;
-  line-height: 1.6;
-  opacity: 0;
-  animation: arrive 0.7s ease 3s forwards;
-}
-
 @keyframes write {
   to { stroke-dashoffset: 0; }
 }
@@ -597,8 +587,7 @@ a.tag:hover {
 
   .signature-word,
   .underline,
-  .motto,
-  .hint {
+  .motto {
     animation: none;
     opacity: 1;
     transform: none;
